@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PedWatch | Homepage</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/x-icon" href="assets/favicon.png">
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for aesthetic enhancements */
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+        }
+        .text-shadow {
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+        }
+    </style>
+    <script>
+        // --- Tailwind Configuration ---
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'primary-dark': '#121212',
+                        'card-dark': '#1f1f1f',
+                        'text-light': '#ffffff',
+                        'accent-red': 'orange',
+                        'button-red': '#cc0000',
+                    }
+                }
+            }
+        }
+        
+        // --- Global Application State & Constants ---
+        
+        // Data now uses 'linkUrl' to directly specify the destination, 
+        // which can be an internal .html page or an external HTTPS link.
+        const PLAYLISTS = [
+            { 
+                title: "Weekly Skeeter Jean", 
+                description: "Support this content: https://skeeterjean.locals.com/support",
+                linkUrl: "playlists/weeklyskeeter.html", // Example of a mock internal HTML page link
+                videoId: "HSQNlGa2cnM" // Representative video for thumbnail
+            },
+            { 
+                title: "Coming Soon", 
+                description: "Coming Soon",
+                linkUrl: "https://www.youtube.com/playlist?list=PL_4m_Q1q1R_cT2V8gL4y0W9uX6h1F7d5E", // Direct HTTPS YouTube Playlist Link
+                videoId: "Q1ti6soPQJU" // Representative video for thumbnail
+            },
+            { 
+                title: "Coming Soon", 
+                description: "Coming Soon",
+                linkUrl: "https://www.youtube.com/playlist?list=PL_4m_Q1q1R_dX1vY3jR4pZ5lT9eI0mG2K", // Direct HTTPS YouTube Playlist Link
+                videoId: "3e_T6kO23G0" // Representative video for thumbnail
+            },
+            // The linkUrl field now holds the complete destination URL
+            { 
+                title: "Coming Soon", 
+                description: "Coming Soon",
+                linkUrl: "https://www.youtube.com/playlist?list=PL_4m_Q1q1R_aC3zY5jW7pQ0qI8h6mE4nL", // Direct HTTPS YouTube Playlist Link
+                videoId: "bZ5Z9Jse7MI" // Representative video for thumbnail
+            }
+        ];
+
+        let isMenuOpen = false;
+
+        /**
+         * Toggles the mobile hamburger menu state and visibility.
+         */
+        const toggleMenu = () => {
+            isMenuOpen = !isMenuOpen;
+            const menu = document.getElementById('mobileMenu');
+            const menuButton = document.getElementById('menuButton');
+
+            if (menu) {
+                menu.classList.toggle('hidden', !isMenuOpen);
+            }
+            if (menuButton) {
+                 // Change the icon to 'X' when open
+                menuButton.innerHTML = isMenuOpen
+                    ? '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>'
+                    : '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>';
+            }
+        };
+
+
+        /**
+         * Generates the URL for a YouTube video's thumbnail.
+         */
+        const getThumbnailUrl = (videoId) => {
+            // Using mqdefault.jpg (medium quality) for better speed and a square-ish crop look.
+            return `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
+        };
+
+        /**
+         * Renders the playlist cards on the homepage.
+         */
+        const renderHomepage = () => {
+            const container = document.getElementById('playlistGrid');
+            if (!container) return;
+
+            PLAYLISTS.forEach(playlist => {
+                const playlistUrl = playlist.linkUrl;
+                
+                // Set link target: _blank for external HTTPS links, _self for internal .html links.
+                const linkTarget = playlistUrl.startsWith('https://') ? '_blank' : '_self';
+                
+                // Card container (not directly clickable, contains links)
+                const card = document.createElement('div');
+                card.className = "bg-card-dark rounded-xl shadow-xl overflow-hidden transition duration-300 ease-in-out card-hover border border-gray-700";
+
+                card.innerHTML = `
+                    <!-- Thumbnail Area -->
+                    <a href="${playlistUrl}" target="${linkTarget}" class="block relative w-full h-48 sm:h-64 overflow-hidden">
+                        <img 
+                            src="${getThumbnailUrl(playlist.videoId)}" 
+                            alt="${playlist.title} cover image" 
+                            class="w-full h-full object-cover transition duration-300 transform hover:scale-105"
+                            onerror="this.onerror=null; this.src='https://placehold.co/600x600/1f1f1f/ffffff?text=Playlist+Cover';"
+                        >
+                        <!-- Play Icon Overlay -->
+                        <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 opacity-0 hover:opacity-100 transition duration-300">
+                             <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4.004a1 1 0 001.555.832l3.86-2.002a1 1 0 000-1.664l-3.86-2.002z" clip-rule="evenodd"></path></svg>
+                        </div>
+                    </a>
+
+                    <!-- Details Area -->
+                    <div class="p-4">
+                        <h2 class="text-xl font-bold text-text-light mb-1">${playlist.title}</h2>
+                        <p class="text-sm text-gray-400 mb-3">${playlist.description}</p>
+                        
+                        <!-- Watch Now Button -->
+                        <a href="${playlistUrl}" target="${linkTarget}" class="inline-flex items-center justify-center w-full px-4 py-2 bg-button-red text-white font-semibold rounded-lg hover:bg-red-700 transition duration-150 transform hover:scale-[1.02]">
+                            Watch Playlist Now
+                            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        </a>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+        };
+
+        // Initialize the page content and setup mobile menu toggle
+        window.onload = () => {
+            renderHomepage();
+            document.getElementById('menuButton').addEventListener('click', toggleMenu);
+        };
+
+    </script>
+</head>
+<body class="bg-primary-dark text-text-light font-sans min-h-screen">
+
+    <!-- Top Navigation Bar -->
+    <nav class="bg-card-dark shadow-md sticky top-0 z-10">
+        <div class="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo/Title -->
+                <h1 class="text-3xl font-extrabold text-[orange] tracking-wider">PedWatch <span class="text-white text-xl font-light"></span></h1>
+
+                <!-- Desktop Navigation Links (Hidden on mobile) -->
+                <div class="hidden lg:flex items-center space-x-6">
+                    <a href="index.html" class="text-accent-red font-bold transition duration-150 text-sm font-medium border-b-2 border-accent-red">Home</a>
+                    <a href="https://www.youtube.com/@SkeeterJean" target="_blank" class="text-gray-300 hover:text-accent-red transition duration-150 text-sm font-medium">Skeeter Jean Channel</a>
+                    
+                    <!-- Tools Dropdown (Desktop) -->
+                    <div class="relative group pt-2 pb-2">
+                        <button class="flex items-center text-gray-300 group-hover:text-accent-red transition duration-150 text-sm font-medium">
+                            <span>Tools</span>
+                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <!-- Dropdown Menu -->
+                        <div class="absolute right-0 top-full w-48 bg-card-dark border border-gray-700 rounded-md shadow-lg py-1 z-10
+                                    opacity-0 pointer-events-none transform scale-95 group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto
+                                    transition-all duration-200 ease-in-out origin-top-right">
+                            <a href="webapp/idfinder.html" class="block px-4 py-2 text-sm text-gray-300 hover:bg-[orange] hover:text-black">ID Finder</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-[orange] hover:text-black">Analytics</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-[orange] hover:text-black">Settings</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mobile Menu Button (Hidden on desktop) -->
+                <button id="menuButton" class="lg:hidden p-2 rounded-lg text-gray-300 hover:text-accent-red hover:bg-orange-800 transition duration-150" aria-label="Toggle menu">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu Panel (Hidden by default, toggled by JS) -->
+        <div id="mobileMenu" class="hidden lg:hidden bg-[#222] border-t border-gray-700">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="index.html" class="block px-3 py-2 rounded-md text-base font-medium text-accent-red bg-[#222]">Home</a>
+                <a href="https://www.youtube.com/@SkeeterJean" target="_blank" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-{#111} hover:text-white">Skeeter Jean Channel</a>
+                <!-- Tools are simplified into mobile links -->
+                <a href="webapp/idfinder.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-{#111} hover:text-white">ID Finder</a>
+                <a href="#" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-{#111} hover:text-white">Analytics</a>
+                <a href="#" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-{#111} hover:text-white">Settings</a>
+            </div>
+        </div>
+    </nav>
+
+    <div id="app" class="max-w-screen-xl mx-auto p-4 md:p-8 pt-6 md:pt-12">
+        <header class="text-center mb-10">
+            <h2 class="text-4xl md:text-5xl font-extrabold text-text-light mb-4 text-shadow">Featured Playlists</h2>
+            <p class="text-lg text-gray-400 max-w-2xl mx-auto">Explore curated playlists of investigations. Click 'Watch Playlist Now' to view the full collection on YouTube, or a local page if available.</p>
+        </header>
+
+        <!-- Playlist Grid -->
+        <div id="playlistGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Playlist Cards will be injected here by JavaScript -->
+        </div>
+
+        <section class="mt-16 text-center border-t border-gray-800 pt-8">
+            <h3 class="text-2xl font-bold mb-3 text-accent-red">The Full Collection</h3>
+            <p class="text-gray-500 mb-6">Want to see more videos? Check out the official channel:</p>
+            <a href="https://www.youtube.com/@SkeeterJean" target="_blank" class="inline-flex items-center px-8 py-3 bg-red-700 text-white font-semibold text-lg rounded-full shadow-2xl hover:bg-red-800 transition duration-300 transform hover:scale-105">
+                <svg class="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M22.54 6.42a2.78 2.78 0 00-1.94-1.94c-2-.53-10.09-.53-10.09-.53s-8.1 0-10.09.53a2.78 2.78 0 00-1.94 1.94c-.53 2-.53 6.64-.53 6.64s0 4.65.53 6.64a2.78 2.78 0 001.94 1.94c2 .53 10.09.53 10.09.53s8.1 0 10.09-.53a2.78 2.78 0 001.94-1.94c.53-2 .53-6.64.53-6.64s0-4.65-.53-6.64zM9.54 15.69V8.31l6.23 3.69-6.23 3.69z"></path>
+                </svg>
+                Go to YouTube Channel
+            </a>
+        </section>
+
+    </div>
+</body>
+</html>
